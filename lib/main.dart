@@ -1,100 +1,98 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CalculatorApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CalculatorApp extends StatelessWidget {
+  const CalculatorApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      title: "Calculator",
+      theme: ThemeData.dark(),
+      home: const CalculatorScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class CalculatorScreen extends StatefulWidget {
+  const CalculatorScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CalculatorScreen> createState() => _CalculatorScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _CalculatorScreenState extends State<CalculatorScreen> {
+  String input = '';
+  String result = '0';
 
-  void _incrementCounter() {
+  void buttonPressed(String value) {
     setState(() {
-      _counter++;
+      if (value == "C") {
+        input = '';
+        result = '0';
+      } else if (value == "=") {
+        try {
+          result = _evaluate(input).toString();
+        } catch (e) {
+          result = "Error";
+        }
+      } else {
+        input += value;
+      }
     });
+  }
+
+  double _evaluate(String expression) {
+    // A very simple evaluator (only + - * /)
+    List<String> tokens = expression.split(RegExp(r'([+\-*/])'));
+    double total = double.parse(tokens[0]);
+    for (int i = 1; i < tokens.length; i += 2) {
+      String op = tokens[i];
+      double num = double.parse(tokens[i + 1]);
+      if (op == "+") total += num;
+      if (op == "-") total -= num;
+      if (op == "*") total *= num;
+      if (op == "/") total /= num;
+    }
+    return total;
+  }
+
+  Widget buildButton(String text) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () => buttonPressed(text),
+        child: Text(text, style: const TextStyle(fontSize: 24)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              'Hello World',
-              style: TextStyle(
-                color: Colors.purple,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic
+      appBar: AppBar(title: const Text("Calculator")),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              alignment: Alignment.bottomRight,
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                "$input\n$result",
+                textAlign: TextAlign.right,
+                style: const TextStyle(fontSize: 32),
               ),
             ),
-          ],
-        ),
+          ),
+          Row(children: [buildButton("7"), buildButton("8"), buildButton("9"), buildButton("/")]),
+          Row(children: [buildButton("4"), buildButton("5"), buildButton("6"), buildButton("*")]),
+          Row(children: [buildButton("1"), buildButton("2"), buildButton("3"), buildButton("-")]),
+          Row(children: [buildButton("C"), buildButton("0"), buildButton("="), buildButton("+")]),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
