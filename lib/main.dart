@@ -66,7 +66,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Calculator")),
+      appBar: AppBar(title: const Text("Simple Calculator"),),
       body: Column(
         children: [
           Expanded(
