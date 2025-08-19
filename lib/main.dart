@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() {
   runApp(const CalculatorApp());
@@ -47,25 +48,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
   double _evaluate(String expression) {
-    // A very simple evaluator (only + - * /)
-    List<String> tokens = expression.split(RegExp(r'([+\-*/])'));
-    double total = double.parse(tokens[0]);
-    for (int i = 1; i < tokens.length; i += 2) {
-      String op = tokens[i];
-      double num = double.parse(tokens[i + 1]);
-      if (op == "+") total += num;
-      if (op == "-") total -= num;
-      if (op == "*") total *= num;
-      if (op == "/") total /= num;
-    }
-    return total;
+    Parser p = Parser();
+    Expression exp = p.parse(expression);
+    ContextModel cm = ContextModel();
+    return exp.evaluate(EvaluationType.REAL, cm);
   }
 
   Widget buildButton(String text) {
     return Expanded(
       child: ElevatedButton(
         onPressed: () => buttonPressed(text),
-        child: Text(text, style: const TextStyle(fontSize: 24)),
+        child: Text(text, style: const TextStyle(fontSize: 32)),
       ),
     );
   }
@@ -79,11 +72,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           Expanded(
             child: Container(
               alignment: Alignment.bottomRight,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               child: Text(
                 "$input\n$result",
                 textAlign: TextAlign.right,
-                style: const TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 40),
               ),
             ),
           ),
